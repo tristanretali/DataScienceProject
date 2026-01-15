@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from schemas import PredictPayload
+from config import MODELS_DIR
 
 router = APIRouter(prefix="/api")
 
