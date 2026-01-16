@@ -29,3 +29,4 @@ class PredictPayload(BaseModel):
     transmission: Transmission = Field(..., alias="Transmission")
     mileage: int = Field(..., alias="Mileage")
     condition: Condition = Field(..., alias="Condition")
+    model: str = Field(..., alias="Model")
