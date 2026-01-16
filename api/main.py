@@ -10,6 +10,7 @@ app = FastAPI(title="Prédiction pour  une entreprise vendant des voitures d'occ
 @app.on_event("startup")
 def startup():
     """Entraîne les modèles au démarrage s'ils n'existent pas"""
+
     model_v1 = os.path.join(cfg.MODELS_DIR, "model_v1.pkl")
     model_v2 = os.path.join(cfg.MODELS_DIR, "model_v2.pkl")
 
