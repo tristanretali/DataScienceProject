@@ -34,6 +34,15 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def change_data_types(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Changement du type de certaines colonnes
+
+    Args:
+        df (pd.DataFrame): Notre dataset
+
+    Returns:
+        pd.DataFrame: Le dataset avec les types changés
+    """
     # Conversion en category
     for current_column in df.select_dtypes(include=["object"]).columns:
         df[current_column] = df[current_column].astype("category")
@@ -48,6 +57,15 @@ def change_data_types(df: pd.DataFrame) -> pd.DataFrame:
 def remove_price_outliers(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """
+    Suppression des valeurs aberrantes de la colonne 'Price'
+
+    Args:
+        df (pd.DataFrame): Notre dataset
+
+    Returns:
+        pd.DataFrame: Le dataset avec les valeurs aberrantes en moins
+    """
     # Calcule des quartiles
     Q1 = df["Price"].quantile(0.25)
     Q3 = df["Price"].quantile(0.75)
@@ -72,6 +90,15 @@ def remove_price_outliers(
 
 
 def define_labels(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Changement des prix dans la tranche qui leur correspond
+
+    Args:
+        df (pd.DataFrame): Notre dataset
+
+    Returns:
+        pd.DataFrame: Le dataset avec le changement du prix des voitures en intervalle
+    """
     max_price = df["Price"].max()
     # Création de notre liste de bons avec un intervalle de 5000. On va jusqu'à la valeur maximale.
     bins = list(range(0, int(max_price) + 5000, 5000))
@@ -89,3 +116,5 @@ if __name__ == "__main__":
     df_cleaned = clean_data(df)
 
     print(df_cleaned.head())
+
+    # TODO Faire entraînement et sauvegarde des modèles
