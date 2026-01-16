@@ -1,5 +1,18 @@
 import pandas as pd
 import config as cfg
+import pickle
+from sklearn.preprocessing import (
+    StandardScaler,
+    OrdinalEncoder,
+    OneHotEncoder,
+    LabelEncoder,
+)
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.compose import ColumnTransformer
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
@@ -111,10 +124,130 @@ def define_labels(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-if __name__ == "__main__":
+def preprocessing(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Étape de preprocessing de notre dataset
+
+    Args:
+        df (pd.DataFrame): Notre dataset nettoyé
+
+    Returns:
+        tuple: Renvoie les variables dont on a besoin pour lancer notre pipeline
+    """
+    # Définition de nos labels et de la variable cible
+    X = df.drop("Price", axis=1)
+    y = df["Price"]
+
+    # Encodage de la variable cible
+    price_label_encoder = LabelEncoder()
+    y = price_label_encoder.fit_transform(y)
+
+    # Features numérique (int, float)
+    numeric_features = ["Year", "Engine Size", "Mileage"]
+    # Features catégorielles
+    categorical_features_non_ord = ["Fuel Type", "Transmission"]
+    categorical_features_ord = ["Condition", "Model"]
+
+    numeric_transformer = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="median")),
+            ("scaler", StandardScaler()),
+        ]
+    )
+
+    categorical_non_ord_transformer = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("onehot", OneHotEncoder(handle_unknown="ignore")),
+        ]
+    )
+
+    categorical_ord_transformer = Pipeline(
+        steps=[
+            ("imputer", SimpleImputer(strategy="most_frequent")),
+            ("ordinay", OrdinalEncoder()),
+        ]
+    )
+
+    # Initialsation de l'étape de preprocessing
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ("num", numeric_transformer, numeric_features),
+            (
+                "cat_non_ord",
+                categorical_non_ord_transformer,
+                categorical_features_non_ord,
+            ),
+            ("cat_ord", categorical_ord_transformer, categorical_features_ord),
+        ],
+        remainder="drop",
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    # Sauvegarde le l'encodage des labels pour les retrouver lorsqu'on va faire la prédiction
+    with open(f"{cfg.DATA_DIR}/label_encoder.pkl", "wb") as f:
+        pickle.dump(price_label_encoder, f)
+
+    return preprocessor, X_train, y_train
+
+
+def launch_pipeline(
+    preprocessor,
+    X_train: pd.DataFrame,
+    y_train,
+    mode: str = "v1",
+):
+    """
+
+
+    Args:
+        preprocessor (_type_): Le preprocessing à utiliser sur nos différentes features
+        X_train (pd.DataFrame): Dataset d'entraînement
+        y_train (_type_): Labels d'entraînement
+        mode (str, optional): Version du modèle à entraîner. Defaults to "v1".
+    """
+    if mode == "v1":
+        pipeline = Pipeline(
+            [
+                ("preprocessor", preprocessor),
+                (
+                    "classifier",
+                    RandomForestClassifier(n_estimators=1000, random_state=42),
+                ),
+            ]
+        )
+    elif mode == "v2":
+        pipeline = Pipeline(
+            [
+                ("preprocessor", preprocessor),
+                (
+                    "classifier",
+                    GradientBoostingClassifier(n_estimators=100, random_state=42),
+                ),
+            ]
+        )
+
+    pipeline.fit(X_train, y_train)
+
+    with open(f"{cfg.MODELS_DIR}/model_{mode}.pkl", "wb") as f:
+        pickle.dump(pipeline, f)
+
+
+def train_models():
+    """
+    Entraînement de nos modèles
+    """
     df = pd.read_csv(f"{cfg.DATA_DIR}/car_price.csv")
     df_cleaned = clean_data(df)
+    preprocessor, X_train, y_train = preprocessing(df_cleaned)
 
-    print(df_cleaned.head())
+    # Entraînement de deux modèles avec des algorithmes différents
+    launch_pipeline(preprocessor, X_train, y_train, mode="v1")
+    launch_pipeline(preprocessor, X_train, y_train, mode="v2")
 
-    # TODO Faire entraînement et sauvegarde des modèles
+
+if __name__ == "__main__":
+    train_models()
