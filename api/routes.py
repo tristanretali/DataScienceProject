@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from schemas import PredictPayload
 from config import MODELS_DIR
+import config as cfg
 
 router = APIRouter(prefix="/api")
 
@@ -11,5 +12,5 @@ def predict(version: str, payload: PredictPayload):
         return {"error": f"La version {version} n'est pas existante. Utilisez v1 ou v2"}
 
     # TODO Charger le modèle quand entraîné et faire prédiction puis retourner le résultat
-    model_path = f"{MODELS_DIR}/model_{version}.pkl"
+    model_path = f"{cfg.MODELS_DIR}/model_{version}.pkl"
     return payload.model_dump(by_alias=True)
