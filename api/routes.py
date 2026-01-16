@@ -6,7 +6,6 @@ import pandas as pd
 
 router = APIRouter(prefix="/api")
 
-
 # Chargement du label_encoder une fois, pour éviter de le faire à chaque requête
 with open(f"{cfg.DATA_DIR}/label_encoder.pkl", "rb") as f:
     label_encoder = pickle.load(f)

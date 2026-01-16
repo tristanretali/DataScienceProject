@@ -12,7 +12,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 
 def clean_data(df: pd.DataFrame) -> pd.DataFrame:
