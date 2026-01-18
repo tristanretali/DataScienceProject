@@ -39,7 +39,7 @@ http://127.0.0.1:8000/api/version/predict -> version est un paramètre disponibl
 Placez vous dans le dossier du projet et saisissez cette commande: `pip install -r requirements-api.txt`
 
 Cela installe les package python nécessaire pour faire fonctionné l'API.  
-Ensuite placez vous dans le dossier **api** avec la commande `cd api`. Il ne vous reste plus qu'à lancer l'API avec `uvicorn main:app --reload`
+Ensuite placez vous dans le dossier **api** avec la commande `cd api`. Il ne vous reste plus qu'à lancer l'API avec `uvicorn main:app`
 
 Vous ne devriez pas avoir d'erreur. Pour le fonctionnement des routes c'est le même que énoncé plus haut.
 
