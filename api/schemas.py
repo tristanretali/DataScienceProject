@@ -20,8 +20,7 @@ class Condition(str, Enum):
 
 
 # Les '...' servent à indiquer que le champ est obligatoire
-# On utilise 'alias' pour correspondre aux noms des colonnes du DataFrame et donc celles
-# avec lesquels le modèle a été entraîné
+# On utilise 'alias' pour correspondre aux noms des colonnes du DataFrame et donc celles avec lesquels le modèle a été entraîné
 class PredictPayload(BaseModel):
     year: int = Field(..., alias="Year")
     engine_size: float = Field(..., alias="Engine Size")
